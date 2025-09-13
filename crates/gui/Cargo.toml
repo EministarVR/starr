@@ -1,0 +1,12 @@
+[package]
+name = "starr"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = { version = "0.29", features = ["wgpu"] }
+egui = "0.29"
+whoami = "1"
+ansi-parser = "0.9"
+clipboard-win = "5.4"
+starr-core = { path = "../core" }

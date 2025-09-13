@@ -1,0 +1,33 @@
+# Ignore everything in target except .exe and .pdb files
+/target/*
+!/target/**/*.exe
+!/target/**/*.pdb
+
+# Ignore build artifacts except for .exe and .pdb
+/target/**/build/
+/target/**/deps/
+/target/**/incremental/
+/target/**/examples/
+
+# Ignore byproducts
+*.d
+*.rlib
+*.dSYM/
+*.dll
+*.so
+*.dylib
+
+# Ignore IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+
+# Ignore Cargo.lock for libraries (optional, keep if binary)
+# Cargo.lock

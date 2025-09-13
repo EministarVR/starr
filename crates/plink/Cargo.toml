@@ -1,0 +1,10 @@
+[package]
+name = "starr-plink"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+starr-core = { path = "../core" }
+whoami = "1"

@@ -1,0 +1,12 @@
+[package]
+name = "starr-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+ssh2 = "0.9"
+thiserror = "1"
+directories = "5"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
