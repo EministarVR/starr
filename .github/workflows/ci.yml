@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Windows / stable
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo target
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Clippy (advisory)
+        run: cargo clippy --workspace --all-targets
+
+      - name: Build (release)
+        run: cargo build --workspace --release
+
+      - name: Test (compile only)
+        run: cargo test --workspace --no-run

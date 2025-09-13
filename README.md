@@ -1,16 +1,21 @@
 # Starr
 
-Modern, fast SSH client and PuTTY alternative with first-class WinSCP compatibility. Starr ships as a Rust workspace with a GUI app and a lightweight `starr-plink` CLI that you can use as a drop‑in replacement for PuTTY in WinSCP.
+> Warning — Early Alpha
+>
+> - WinSCP integration (`starr-plink`) is experimental/partial. Do not rely on it for production.
+> - GUI "Send" functionality is incomplete and under active development.
+> - Expect bugs, missing features, and breaking changes.
+
+Modern, fast SSH client and PuTTY alternative with first-class WinSCP compatibility. Starr ships as a Rust workspace with a GUI app and a lightweight `starr-plink` CLI that you can use as a drop-in replacement for PuTTY in WinSCP.
 
 ![Status](https://img.shields.io/badge/status-alpha-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![OS](https://img.shields.io/badge/OS-Windows-blue?logo=windows)
 ![Rust](https://img.shields.io/badge/Rust-stable-orange?logo=rust)
 ![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen)
-<!-- Replace <OWNER> if hosted on GitHub -->
-<!-- ![CI](https://github.com/<OWNER>/starr/actions/workflows/ci.yml/badge.svg) -->
+[![CI](https://github.com/EministarVR/starr/actions/workflows/ci.yml/badge.svg)](https://github.com/EministarVR/starr/actions/workflows/ci.yml)
 
-> Hinweis: Diese README verwendet eingebettete Diagramme, Tabellen und Screenshots. Lege eigene Bilder in `docs/screenshots/` ab und passe die Dateinamen an.
+> Note: This README embeds diagrams, tables, and screenshots. Put your images under `docs/screenshots/` and adjust the filenames.
 
 ## Screenshots
 
@@ -24,9 +29,9 @@ Modern, fast SSH client and PuTTY alternative with first-class WinSCP compatibil
 
 | Area | Highlights | Status |
 | --- | --- | --- |
-| GUI (eframe/egui) | Dark UI, auto‑copy on selection, middle/right‑click paste & send, autoscroll toggle, basic ANSI color rendering | MVP |
-| Core (ssh2) | SSH session, PTY, shell, send/resize, buffered reads, thread‑safe handles | Stable MVP |
-| CLI (`starr-plink`) | WinSCP‑compatible flags, `user@host`, password and key support, minimal error surface | MVP |
+| GUI (eframe/egui) | Dark UI, auto-copy on selection, middle/right-click paste & send, autoscroll toggle, basic ANSI color rendering | MVP |
+| Core (ssh2) | SSH session, PTY, shell, send/resize, buffered reads, thread-safe handles | Stable MVP |
+| CLI (`starr-plink`) | WinSCP-compatible flags, `user@host`, password and key support, minimal error surface | MVP |
 | Windows focus | No extra console, clipboard integration | Supported |
 
 ## How It Works
@@ -41,8 +46,8 @@ flowchart LR
 ### Modules
 
 - `starr-core`: SSH session management built on `ssh2`. Opens PTY + shell, spawns a reader thread, exposes `send`, `resize`, `read_string` and safe close.
-- `starr` (GUI): Egui/eframe app with a connect form and a terminal‑like view. Auto‑copy on selection (PuTTY‑style), paste & send, optional local echo, throttled ANSI layout to reduce GPU load.
-- `starr-plink`: Minimal CLI compatible with WinSCP’s PuTTY integration. Accepts familiar flags like `-P`, `-l`, `-i`, `-pw`, `--pass` and tolerates unknown plink flags.
+- `starr` (GUI): Egui/eframe app with a connect form and a terminal-like view. Auto-copy on selection (PuTTY-style), paste & send, optional local echo, throttled ANSI layout to reduce GPU load.
+- `starr-plink`: Minimal CLI compatible with WinSCP's PuTTY integration. Accepts familiar flags like `-P`, `-l`, `-i`, `-pw`, `--pass` and tolerates unknown plink flags.
 
 ## Getting Started
 
@@ -55,7 +60,7 @@ flowchart LR
 ### Build
 
 ```sh
-git clone <repo-url>
+git clone https://github.com/EministarVR/starr.git
 cd starr
 cargo build --release
 ```
@@ -68,11 +73,11 @@ Artifacts (Windows): `target/release/starr.exe`, `target/release/starr-plink.exe
   ```sh
   cargo run -p starr --release
   ```
-- CLI (plink‑style):
+- CLI (plink-style):
   ```sh
   cargo run -p starr-plink -- --help
   cargo run -p starr-plink -- -P 22 -l user host -pw secret
-  cargo run -p starr-plink -- user@host -i C:\Keys\id_ed25519 --pass myPassphrase
+  cargo run -p starr-plink -- user@host -i C:\\Keys\\id_ed25519 --pass myPassphrase
   ```
 
 ## WinSCP Integration
@@ -80,8 +85,8 @@ Artifacts (Windows): `target/release/starr.exe`, `target/release/starr-plink.exe
 Use `starr-plink.exe` as the PuTTY/Plink path in WinSCP:
 
 1. Build release binaries: `cargo build -p starr-plink --release`.
-2. In WinSCP, set Preferences → Integration → Applications → “PuTTY/Plink path” to your `starr-plink.exe`.
-3. Connect as usual; WinSCP will invoke `starr-plink` with plink‑compatible flags.
+2. In WinSCP, set Preferences > Integration > Applications > "PuTTY/Plink path" to your `starr-plink.exe`.
+3. Connect as usual; WinSCP will invoke `starr-plink` with plink-compatible flags.
 
 > Optional screenshot: ![WinSCP Setup](docs/screenshots/winscp-setup.png)
 
@@ -91,14 +96,14 @@ Use `starr-plink.exe` as the PuTTY/Plink path in WinSCP:
 crates/
   core/   # Core library (ssh2)
   gui/    # GUI app (eframe/egui)
-  plink/  # Plink‑compatible CLI for WinSCP
+  plink/  # Plink-compatible CLI for WinSCP
 ```
 
 ## Keyboard & Mouse
 
 | Action | Behavior |
 | --- | --- |
-| Select text | Copies selection to clipboard (PuTTY‑style) |
+| Select text | Copies selection to clipboard (PuTTY-style) |
 | Right/Middle click | Paste from clipboard and send |
 | Ctrl+V | Paste from clipboard and send |
 | Autoscroll toggle | Keeps view anchored to bottom when enabled |
@@ -114,7 +119,7 @@ crates/
 - [ ] Expand terminal emulation and ANSI handling
 - [ ] Performance tuning and GPU footprint reduction
 - [ ] Harden error handling and reconnection logic
-- [ ] Cross‑platform testing (Linux/macOS)
+- [ ] Cross-platform testing (Linux/macOS)
 
 ## Contributing
 
