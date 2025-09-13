@@ -1,70 +1,120 @@
 # Starr
 
-Starr is a modern SSH client and PuTTY alternative, designed to provide a seamless and powerful experience for secure remote connections. It features built-in support for WinSCP, making file transfers as smooth as with PuTTY. The included plink module ensures full compatibility with WinSCP, so you can use Starr as a drop-in replacement for PuTTY in your workflow.
+Modern, fast SSH client and PuTTY alternative with first-class WinSCP compatibility. Starr ships as a Rust workspace with a GUI app and a lightweight `starr-plink` CLI that you can use as a drop‑in replacement for PuTTY in WinSCP.
 
-Starr is a modular, GPU-intensive application written in Rust, featuring a core library, a graphical user interface (GUI), and a plink module. The project is structured as a multi-crate workspace, designed for high-performance tasks and extensibility.
+![Status](https://img.shields.io/badge/status-alpha-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+![OS](https://img.shields.io/badge/OS-Windows-blue?logo=windows)
+![Rust](https://img.shields.io/badge/Rust-stable-orange?logo=rust)
+![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen)
+<!-- Replace <OWNER> if hosted on GitHub -->
+<!-- ![CI](https://github.com/<OWNER>/starr/actions/workflows/ci.yml/badge.svg) -->
 
-## Features
+> Hinweis: Diese README verwendet eingebettete Diagramme, Tabellen und Screenshots. Lege eigene Bilder in `docs/screenshots/` ab und passe die Dateinamen an.
 
-- **Modular Architecture:**
-  - `core`: Contains the main logic and reusable components.
-  - `gui`: Provides a graphical user interface for user interaction.
-  - `plink`: Additional module for extended functionality.
-- **Rust-Powered Performance:**
-  - Utilizes Rust's safety and speed for demanding workloads.
-- **GPU-Intensive Operations:**
-  - Designed to leverage GPU resources for computation-heavy tasks.
+## Screenshots
+
+> Place your screenshots under `docs/screenshots/` and adjust the paths below.
+
+| Connect View | Terminal View |
+| --- | --- |
+| ![Connect](docs/screenshots/connect.png) | ![Terminal](docs/screenshots/terminal.png) |
+
+## Feature Highlights
+
+| Area | Highlights | Status |
+| --- | --- | --- |
+| GUI (eframe/egui) | Dark UI, auto‑copy on selection, middle/right‑click paste & send, autoscroll toggle, basic ANSI color rendering | MVP |
+| Core (ssh2) | SSH session, PTY, shell, send/resize, buffered reads, thread‑safe handles | Stable MVP |
+| CLI (`starr-plink`) | WinSCP‑compatible flags, `user@host`, password and key support, minimal error surface | MVP |
+| Windows focus | No extra console, clipboard integration | Supported |
+
+## How It Works
+
+```mermaid
+flowchart LR
+  GUI[starr (GUI)\n egui/eframe + wgpu] --> Core
+  Plink[starr-plink (CLI)\n clap] --> Core
+  Core[starr-core\n ssh2 + threads] -->|SSH| Remote[Remote Host]
+```
+
+### Modules
+
+- `starr-core`: SSH session management built on `ssh2`. Opens PTY + shell, spawns a reader thread, exposes `send`, `resize`, `read_string` and safe close.
+- `starr` (GUI): Egui/eframe app with a connect form and a terminal‑like view. Auto‑copy on selection (PuTTY‑style), paste & send, optional local echo, throttled ANSI layout to reduce GPU load.
+- `starr-plink`: Minimal CLI compatible with WinSCP’s PuTTY integration. Accepts familiar flags like `-P`, `-l`, `-i`, `-pw`, `--pass` and tolerates unknown plink flags.
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Rust](https://www.rust-lang.org/tools/install) (latest stable recommended)
-- A modern GPU and up-to-date drivers
-- Windows (primary target, other OSes may work but are untested)
+- [Rust](https://www.rust-lang.org/tools/install) (stable)
+- Windows 10/11 recommended (other OSes may work but are untested)
+- Recent GPU drivers (GUI uses `wgpu` via eframe)
 
-### Build Instructions
+### Build
 
-1. Clone the repository:
-   ```sh
-   git clone <repo-url>
-   cd starr
-   ```
-2. Build the project:
-   ```sh
-   cargo build --release
-   ```
-3. Run the GUI:
-   ```sh
-   cargo run -p gui --release
-   ```
+```sh
+git clone <repo-url>
+cd starr
+cargo build --release
+```
+
+Artifacts (Windows): `target/release/starr.exe`, `target/release/starr-plink.exe`.
+
+### Run
+
+- GUI:
+  ```sh
+  cargo run -p starr --release
+  ```
+- CLI (plink‑style):
+  ```sh
+  cargo run -p starr-plink -- --help
+  cargo run -p starr-plink -- -P 22 -l user host -pw secret
+  cargo run -p starr-plink -- user@host -i C:\Keys\id_ed25519 --pass myPassphrase
+  ```
+
+## WinSCP Integration
+
+Use `starr-plink.exe` as the PuTTY/Plink path in WinSCP:
+
+1. Build release binaries: `cargo build -p starr-plink --release`.
+2. In WinSCP, set Preferences → Integration → Applications → “PuTTY/Plink path” to your `starr-plink.exe`.
+3. Connect as usual; WinSCP will invoke `starr-plink` with plink‑compatible flags.
+
+> Optional screenshot: ![WinSCP Setup](docs/screenshots/winscp-setup.png)
 
 ## Project Structure
 
 ```
 crates/
-  core/   # Core library
-  gui/    # Graphical user interface
-  plink/  # Plink module
+  core/   # Core library (ssh2)
+  gui/    # GUI app (eframe/egui)
+  plink/  # Plink‑compatible CLI for WinSCP
 ```
 
-## Known Issues
+## Keyboard & Mouse
 
-- **High GPU Usage:**
-  - The application is currently very GPU-intensive. Running it may cause high GPU load and increased power consumption.
-- **Send Functionality Not Implemented:**
-  - The main sending function is not operational yet. This is a major missing feature and is under development.
-- **Stability:**
-  - The application is in an early stage. Crashes and unexpected behavior may occur.
-- **Platform Support:**
-  - Only tested on Windows. Other platforms are not officially supported.
+| Action | Behavior |
+| --- | --- |
+| Select text | Copies selection to clipboard (PuTTY‑style) |
+| Right/Middle click | Paste from clipboard and send |
+| Ctrl+V | Paste from clipboard and send |
+| Autoscroll toggle | Keeps view anchored to bottom when enabled |
+
+## Troubleshooting
+
+- High GPU usage: the GUI throttles redraws (~50 ms) to reduce GPU load. Update GPU drivers if usage is still high.
+- Authentication: supports OpenSSH keys (passphrase optional) or password. PPK conversion required for now.
+- Console window: Windows build runs without an extra console window.
 
 ## Roadmap
 
-- [ ] Implement the main sending functionality
-- [ ] Optimize GPU usage
-- [ ] Improve cross-platform support
-- [ ] Enhance stability and error handling
+- [ ] Expand terminal emulation and ANSI handling
+- [ ] Performance tuning and GPU footprint reduction
+- [ ] Harden error handling and reconnection logic
+- [ ] Cross‑platform testing (Linux/macOS)
 
 ## Contributing
 
@@ -72,9 +122,8 @@ Contributions are welcome! Please open issues or pull requests to help improve t
 
 ## License
 
-This project is licensed under the MIT License.
+MIT License. See `LICENSE` (or package metadata) for details.
 
 ---
 
-> **Warning:**
-> This software is in active development. Use at your own risk. High GPU usage may impact system performance.
+> Warning: This software is in active development. Use at your own risk.
