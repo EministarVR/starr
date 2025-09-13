@@ -33,9 +33,9 @@ Modern, fast SSH client and PuTTY alternative with first-class WinSCP compatibil
 
 ```mermaid
 flowchart LR
-  GUI[starr (GUI)\n egui/eframe + wgpu] --> Core
-  Plink[starr-plink (CLI)\n clap] --> Core
-  Core[starr-core\n ssh2 + threads] -->|SSH| Remote[Remote Host]
+  GUI["starr (GUI)<br/>egui/eframe + wgpu"] --> Core
+  Plink["starr-plink (CLI)<br/>clap"] --> Core
+  Core["starr-core<br/>ssh2 + threads"] -->|SSH| Remote["Remote Host"]
 ```
 
 ### Modules
